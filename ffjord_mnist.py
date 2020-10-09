@@ -638,11 +638,11 @@ def run():
     info = collections.defaultdict(dict)
 
     key = rng
-
+    iterdata=iter(ds_train)
     for epoch in range(parse_args.nepochs):
         for i in range(num_batches):
             key, key2 = jax.random.split(key, num=2)
-            batch = next(ds_train)[0]
+            batch = next(iterdata)[0]
             batch = (batch.astype(jnp.float32) + jax.random.uniform(key2,
                                                                     minval=1e-15,
                                                                     maxval=1 - 1e-15,

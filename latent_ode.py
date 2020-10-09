@@ -82,12 +82,13 @@ def logsumexp(x, axis=-1):
 def sol_recursive(f, z, t):
   """
   Recursively compute higher order derivatives of dynamics of ODE.
+  递归计算ODE动力学的高阶导数。
   """
   if reg == "none":
-      return f(z, t), jnp.zeros_like(z)
+      return f(z, t), jnp.zeros_like(z)  #zeros_like生成一个和z形状相同的全0数组
 
   z_shape = z.shape
-  z_t = jnp.concatenate((jnp.ravel(z), jnp.array([t])))
+  z_t = jnp.concatenate((jnp.ravel(z), jnp.array([t])))  #jnp.ravel效果与flatten相同        
 
   def g(z_t):
     """

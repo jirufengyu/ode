@@ -240,6 +240,7 @@ class PostODE(hk.Module):
 def wrap_module(module, *module_args, **module_kwargs):
     """
     Wrap the module in a function to be transformed.
+    将模块包装在要转换的函数中。
     """
     def wrap(*args, **kwargs):
         """
@@ -254,8 +255,9 @@ def initialization_data(input_shape, ode_shape):
     """
     Data for initializing the modules.
     """
-    ode_shape = (1, ) + ode_shape[1:]
-    ode_dim = jnp.prod(ode_shape)
+    
+    #ode_shape = (1, ) + ode_shape[1:]
+    ode_dim=784#ode_dim = jnp.prod(ode_shape)
     data = {
         "pre_ode": jnp.zeros(input_shape),
         "ode": (jnp.zeros(ode_dim), 0.),
@@ -272,7 +274,9 @@ def init_model():
 
     input_shape = (1, 28, 28, 1)
     ode_shape = (-1, 28, 28, 1)
-    ode_dim = jnp.prod(ode_shape[1:])
+    ode_shape=jnp.asarray(ode_shape)
+    
+    ode_dim = 784#ode_dim = jnp.prod(ode_shape[1:])
 
     initialization_data_ = initialization_data(input_shape, ode_shape)
 
@@ -354,7 +358,7 @@ def init_model():
         else:
             unreg_nodeint = lambda y0, t, params: all_odeint(dynamics_wrap, y0, t, params, **ode_kwargs)[1]
 
-        @jax.jit
+        #@jax.jit
         def nfe_fn(params, _images, _labels):
             """
             Function to return NFE.
@@ -488,7 +492,8 @@ def init_data():
                                      as_supervised=True,
                                      with_info=True,
                                      read_config=tfds.ReadConfig(shuffle_seed=parse_args.seed))
-
+    print(ds_train)
+    print(type(ds_train))
     num_train = ds_info.splits['train'].num_examples
 
     assert num_train % parse_args.batch_size == 0
@@ -550,7 +555,7 @@ def run():
         load_itr = 0
     opt_state = opt_init(init_params)
 
-    @jax.jit
+    #@jax.jit
     def update(_itr, _opt_state, _key, _batch):
         """
         Update the params based on grad for current batch.
@@ -558,7 +563,7 @@ def run():
         images, labels = _batch
         return opt_update(_itr, grad_fn(get_params(_opt_state), images, labels, _key), _opt_state)
 
-    @jax.jit
+   # @jax.jit
     def sep_losses(_opt_state, _batch, key):
         """
         Convenience function for calculating losses separately.
@@ -616,10 +621,11 @@ def run():
     info = collections.defaultdict(dict)
 
     key = rng
-
+    #创建迭代器
+    iterator=iter(ds_train)
     for epoch in range(parse_args.nepochs):
         for i in range(num_batches):
-            batch = next(ds_train)
+            batch = next(iterator)
 
             key, = jax.random.split(key, num=1)
 
